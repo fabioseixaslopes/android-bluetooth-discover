@@ -34,21 +34,21 @@ public class MainActivity extends AppCompatActivity {
     BluetoothLeScanner leScanner;
     boolean scanning;
     Handler handler = new Handler();
-    long SCAN_PERIOD = 5000;
+    long SCAN_PERIOD = 10000;
     LocationManager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        System.out.println("App start.\nEntered MainActivity.");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setTitle("Search for a device");
 
         permissions();
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
             if(!bluetoothAdapter.isEnabled() || !manager.isProviderEnabled( LocationManager.GPS_PROVIDER)) {
-                System.out.println("BT or GPS not ON!");
+                Toast.makeText(this, "BT or GPS not ON!", Toast.LENGTH_SHORT).show();
                 return;
             }
             scanLeDevice();
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         leScanner = bluetoothAdapter.getBluetoothLeScanner();
         if (bluetoothAdapter == null) {
-            System.out.println("Device does not support Bluetooth");
+            Toast.makeText(this, "Device does not support Bluetooth", Toast.LENGTH_SHORT).show();
             return;
         }
         if(!bluetoothAdapter.isEnabled())
@@ -95,9 +95,11 @@ public class MainActivity extends AppCompatActivity {
             handler.postDelayed(() -> {
                 scanning = false;
                 leScanner.stopScan(leScanCallback);
+                Toast.makeText(this, "Search ended. Search again or click on a device for more...", Toast.LENGTH_SHORT).show();
             }, SCAN_PERIOD);
             scanning = true;
             startScan();
+            Toast.makeText(this, "Searching for nearby devices...", Toast.LENGTH_SHORT).show();
         } else {
             scanning = false;
             leScanner.stopScan(leScanCallback);
@@ -107,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
     private void startScan(){
         if(!bluetoothAdapter.isEnabled())
             Toast.makeText(getApplicationContext(), "Turned BT On!", Toast.LENGTH_LONG).show();
-        else if (!manager.isProviderEnabled( LocationManager.GPS_PROVIDER ))
+        else if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER))
             Toast.makeText(getApplicationContext(), "GPS is disabled!", Toast.LENGTH_LONG).show();
         else
             leScanner.startScan(leScanCallback);
@@ -119,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onScanResult(int callbackType, ScanResult result) {
                     super.onScanResult(callbackType, result);
                     if (!deviceList.contains(result.getDevice())) {
+                        setTitle("Devices found");
                         deviceList.add(result.getDevice());
                         deviceListView.add(result.getDevice().getName() + "\n" + result.getDevice().getAddress());
                         System.out.println("Found device: " + result.getDevice().getName() + "|" + result.getDevice().getAddress());

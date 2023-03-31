@@ -30,6 +30,7 @@ public class ConnectActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect);
+        setTitle("Available Services");
 
         selectedDevice = new Device(getIntent().getStringExtra("deviceName"),
                 getIntent().getStringExtra("deviceAddress"));
@@ -40,12 +41,12 @@ public class ConnectActivity extends AppCompatActivity {
             System.out.println("Selected Service: " + serviceList.get(position).getUuid().toString());
             Intent intent = new Intent(this, CharacteristicsActivity.class);
             intent.putExtra("serviceUUID", serviceList.get(position).getUuid().toString());
+            intent.putExtra("deviceName", selectedDevice.name);
+            intent.putExtra("deviceAddress", selectedDevice.address);
             startActivity(intent);
         });
 
         connectDevice();
-
-        //TODO i only have UUIDs for now, how to have names? and values? types?
     }
 
     BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
